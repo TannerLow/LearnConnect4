@@ -5,13 +5,18 @@ import com.github.TannerLow.JavaML.NeuralNet;
 import com.github.TannerLow.JavaMatrixMath.Exceptions.DimensionsMismatchException;
 import com.github.TannerLow.JavaMatrixMath.Matrix;
 
+import java.security.InvalidParameterException;
 import java.util.Random;
 
 public class Bot {
     private NeuralNet brain;
     private Genome genome;
 
-    public Bot(NeuralNet brainStructure) {
+    public Bot(NeuralNet brainStructure) throws InvalidParameterException {
+        if(brainStructure == null) {
+            throw new InvalidParameterException("brainStructure of Bot cannot be null initialized");
+        }
+
         brain = brainStructure;
     }
 
@@ -36,19 +41,21 @@ public class Bot {
             Matrix weights = layer.getWeights();
             Matrix newWeights = new Matrix(weights.rows, weights.cols);
 
-            for(; offset < newWeights.data.length; offset++) {
-                newWeights.data[offset] = genome.getGene(offset);
+            for(int i = 0; i < newWeights.data.length; i++) {
+                newWeights.data[i] = genome.getGene(i + offset);
             }
 
+            offset += newWeights.data.length;
             layer.setWeights(newWeights);
 
             Matrix biases = layer.getBiases();
             Matrix newBiases = new Matrix(biases.rows, biases.cols);
 
-            for(; offset < newBiases.data.length; offset++) {
-                newBiases.data[offset] = genome.getGene(offset);
+            for(int i = 0; i < newBiases.data.length; i++) {
+                newBiases.data[i] = genome.getGene(i + offset);
             }
 
+            offset += newBiases.data.length;
             layer.setBiases(newBiases);
         }
     }
@@ -60,5 +67,10 @@ public class Bot {
             int geneIndex = random.nextInt(genome.length);
             genome.mutateGene(geneIndex);
         }
+    }
+
+    // TODO switch to int to simply represnt which column to play
+    public Matrix takeTurn(Matrix boardState) {
+        return brain.predict(boardState);
     }
 }

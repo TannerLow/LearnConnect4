@@ -11,7 +11,7 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
-    api 'com.github.TannerLow:JavaML:0.4'
+    api 'com.github.TannerLow:JavaML:0.5.1'
 }
 
 test {
