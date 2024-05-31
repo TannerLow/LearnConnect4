@@ -158,6 +158,24 @@ public class Connect4 {
         return count1 + count2 - 1;
     }
 
+    public int getNumberOfOpenSpots() {
+        int openSpots = 0;
+
+        for(int row = 0; row < boardHeight; row++) {
+            for(int col = 0; col < boardWidth; col++) {
+                if (board[row][col] == Player.Neither) {
+                    openSpots++;
+                }
+            }
+        }
+
+        return openSpots;
+    }
+
+    public void defaultTheWinner(Player player) {
+        winner = player;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

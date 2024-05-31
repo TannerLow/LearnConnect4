@@ -8,9 +8,10 @@ import com.github.TannerLow.JavaMatrixMath.Matrix;
 import java.security.InvalidParameterException;
 import java.util.Random;
 
-public class Bot {
+public class Bot implements Comparable<Bot> {
     private NeuralNet brain;
     private Genome genome;
+    private int score = 0;
 
     public Bot(NeuralNet brainStructure) throws InvalidParameterException {
         if(brainStructure == null) {
@@ -30,12 +31,18 @@ public class Bot {
 
         genome = new Genome(genesNeeded);
         genome.randomizeGenome();
+        updateFromGenome();
         return genome;
     }
 
     public void initialize(Genome genome) throws DimensionsMismatchException {
+        // TODO add dimension mismatch exception based on genome length
         this.genome = genome.copy();
 
+        updateFromGenome();
+    }
+
+    private void updateFromGenome() {
         int offset = 0;
         for(Layer layer : brain.layers) {
             Matrix weights = layer.getWeights();
@@ -60,6 +67,13 @@ public class Bot {
         }
     }
 
+    public Bot produceOffspring(double chancePerGeneMutation) {
+        Bot bot = new Bot(brain.copy());
+        bot.genome = genome.copy();
+        bot.mutate(chancePerGeneMutation);
+        return bot;
+    }
+
     public void mutate(double chancePerGeneMutation) {
         int numberOfMutations = (int) (chancePerGeneMutation * genome.length);
         Random random = new Random();
@@ -67,10 +81,31 @@ public class Bot {
             int geneIndex = random.nextInt(genome.length);
             genome.mutateGene(geneIndex);
         }
+        updateFromGenome();
     }
 
-    // TODO switch to int to simply represnt which column to play
+    // TODO switch to int to simply represent which column to play
     public Matrix takeTurn(Matrix boardState) {
         return brain.predict(boardState);
+    }
+
+    public void givePoints(int additionalPoints) {
+        score += additionalPoints;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public Genome getGenome() {
+        return genome;
+    }
+
+    // higher score = -1
+    // equal score = 0
+    // lower score = 1
+    @Override
+    public int compareTo(Bot other) {
+        return other.score - score;
     }
 }
